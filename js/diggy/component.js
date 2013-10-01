@@ -30,13 +30,14 @@ Crafty.c('Actor', {
     }
 });
 
+// A sky entity is passable through and has no interaction with the player
 Crafty.c('Sky', {
     init: function () {
         this.requires('Actor, Color');
         this.color('rgb(182, 229, 240)');
     }
 });
-
+// A rock entity is mineable by the player
 Crafty.c('Rock', {
     init: function () {
         this.requires('Actor, Color, Solid');
@@ -48,29 +49,26 @@ Crafty.c('Rock', {
     }
 
 });
-
+// The player!
 Crafty.c('PlayerCharacter', {
     init: function () {
-        this.requires('Actor, Fourway, Color,Collision')
+        this.requires('Actor, Fourway, Color, Collision')
             .fourway(4)
             .color('rgb(20, 75, 40)')
-            .stopOnSolids();
+            .onHit_MineRock();
     },
-    // Registers a stop-movement function to be called when
-    //  this entity hits an entity with the "Solid" component
-    stopOnSolids: function () {
-        this.onHit('Rock', this.mine);
-        this.onHit('Solid', this.stopMovement);
-
+    // Registers an mine rock action
+    onHit_MineRock: function () {
+        this.onHit('Rock', this.playerAction_Mine);
         return this;
     },
-
-    mine: function (data) {
+    //Mining action
+    playerAction_Mine: function (data) {
         data[0].obj.mine();
-        this.stopMovement();
+        this.playerAction_StopMovement();
     },
-    // Stops the movement
-    stopMovement: function () {
+    // Stops the movement of the player
+    playerAction_StopMovement: function () {
         this._speed = 0;
         if (this._movement) {
             this.x -= this._movement.x;
